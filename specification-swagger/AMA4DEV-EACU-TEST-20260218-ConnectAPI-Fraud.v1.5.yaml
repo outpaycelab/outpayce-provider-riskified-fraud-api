@@ -1,0 +1,1611 @@
+swagger: '2.0'
+info:
+  title: AMA4DEV-EACU-TEST-20260218-Connect API for Fraud - v1.5
+  version: 1.5.A20260218
+  description: |
+    **Preliminary Note:** This document aims at describing how to use the Amadeus JSON API for core Payment *Operation* management, dealing with payment transactions.
+    Amadeus APIs comply with Amadeus REST/JSON Rules & Guideline v1.3 and are based on *application/vnd.amadeus+json* [media type](https://www.iana.org/assignments/media-types/media-types.xhtml). For further details please refer to [developers.amadeus.com](https://developers.amadeus.com).
+
+    ## Resource: *Operations*
+    The Operations resource represents payment-related operations that can be performed through the API, including fraud screening assessments for payment transactions.
+
+    ### Payment Operation ontology
+    A payment operation represents a discrete action within the payment lifecycle, encompassing various states and transitions as the payment is processed. Payment operations can include actions such as authorization, capture, refund, and fraud screening.
+
+    #### *Fraud screening*
+    The fraud screening operation assesses the risk of a payment transaction and provides recommended actions to the merchant based on the assessment.
+
+    ## Quickstart Guide
+    ### 1. Merchant account setup
+    Outpayce sends payment operations on behalf of merchants. A merchant is identified in your system by a *MERCHANT_ACCOUNT*. It may even be attributed a MERCHANT_LOGIN with an associated MERCHANT_PASSWORD.
+
+    ### 2. Fraud Screening
+    This endpoint allows to perform fraud screening operation. It returns the recommended actions to be performed by the merchant. 
+
+    There are 2 possible actions:
+      - ACCEPT
+      - REJECT
+      
+    In case of ACCEPT the merchant should go on with the payment process. 
+    In case of REJECT the merchant should not go on with the payment process
+
+    #### Examples
+
+    ##### Fraud screening request
+    ```
+    PUT https://your-host-name/outpayce/v1/fraud-screening/{id} HTTP/1.1
+    Content-Type: application/vnd.amadeus+json
+
+    {
+      "data": {
+        "id": "fraudscreeningId",
+        "paymentMerchantReference": "6X-ghyt-uijkh",
+        "amount": {
+          "value": "123.45",
+          "currencyCode": "EUR"
+        },
+        "method": "CARD",
+        "card": {
+          "vendorCode": "VI",
+          "cardNumber": "4000000000000001",
+          "expiryDate": "2024-12",
+          "holderName": "string",
+          "holder": {
+            "language": "string",
+            "email": "string",
+            "billingAddress": {
+              "countryCode": "FR",
+              "cityName": "string",
+              "postalCode": "string",
+              "lines": [
+                "1863 Main Street"
+              ],
+              "stateCode": "CA"
+            },
+            "contacts": [
+              {
+                "phone": {
+                  "text": "+33 678903746"
+                }
+              }
+            ],
+            "identityDocument": {
+                "documentType": "PASSPORT",
+                "number": "12345678C",
+                "issuanceCountry": "US"
+            }
+          }
+        },
+        "purposeOfOperation": {
+          "sales": [
+            {
+              "reference": "RECLOC",
+              "referenceType": "PNR",
+              "salesItems": [
+                {
+                  "discounts": [
+                   {
+                      "code":"BLACKFRIDAY",
+                      "amount":"100.00",
+                      "currencyCode":"EUR"
+                   }
+                  ],
+                  "category": "FLIGHT",
+                  "flightSalesDetails": {
+                    "issuingCarrierCode": "6X",
+                    "travelAgencyCode": "ABC123",
+                    "travelAgencyName": "The Best Travel Agency",
+                    "passengerRoute": [
+                      "ORD",
+                      "MIA",
+                      "ORD"
+                    ],
+                    "flightLegs": [
+                      {
+                        "flightNumber": "6X12456A",
+                        "localDepartureTime": "2023-06-30T11:40:00Z",
+                        "departureTime": "2023-06-30T11:40:00Z",
+                        "departureAirportCode": "DEL",
+                        "localArrivalTime": "2023-06-30T13:40:00Z",
+                        "arrivalTime": "2023-06-30T13:40:00Z",
+                        "arrivalAirportCode": "YYZ",
+                        "carrierCode": "6X",
+                        "serviceClass": "Y"
+                      }
+                    ],
+                    "passenger": {
+                      "name": {
+                        "firstName": "MARIE",
+                        "lastName": "JACOB"
+                      },
+                      "flightPassengerType": "ADULT",
+                      "dateOfBirth": "1985-11-15",
+                      "loyaltyMemberships": [
+                        {
+                          "membershipId": "1234567890",
+                          "enrollment": {
+                            "date": "2020-05-20"
+                          },
+                          "activeTier": {
+                            "level": "GOLD"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "pointOfInteraction": {
+          "reference": "NCE6X08AA",
+          "referenceType": "officeId",
+          "operatingEnvironment": {
+            "holderInteractionMode": "ECOMMERCE"
+          },
+          "location": {
+            "address": {
+              "countryCode": "GB"
+            }
+          }
+        },
+        "timestamp": "2023-05-22T23:59:55Z",
+        "operationContext": {
+          "links": [
+            {
+              "href": "defaultCallbackURL",
+              "rel": "default-callback"
+            },
+            {
+              "href": "ErrorCallbackURL",
+              "rel": "ErrorCallbackURL"
+            }
+          ],
+          "device": {
+            "network": {
+              "ipAddress": "193.62.157.66"
+            },
+            "activeWebBrowser": {
+              "userAgentHeader": "string",
+              "acceptHeader": "string"
+            },
+            "deviceFingerprint": {
+              "value": "qqp4ms1599563525800"
+            }
+          },
+          "threeDomainSecure": {
+            "eci": "string",
+            "cavv": "string",
+            "xid": "string",
+            "version": "string"
+          }
+        }
+      }
+    }
+    ```
+    ##### Fraud screening response (ACCEPT)
+    ```
+    HTTP 201 Created
+    Content-Type: application/vnd.amadeus+json
+
+    {
+      "data": {
+        "reference": "string",
+        "paymentMerchantReference": "6X-985476t7f",
+        "timestamp": "2024-08-09T23:59:55Z",
+        "recommendedActions": {
+          "actionCode": "ACCEPT",
+          "presentCreditCard": false
+        },
+        "externalScore": "500"
+      }
+    }
+    ```
+    ##### Fraud screening response (REJECT)
+    ```
+    HTTP 201 Created
+    Content-Type: application/vnd.amadeus+json
+
+    {
+      "data": {
+        "reference": "string",
+        "paymentMerchantReference": "6X-985476t7f",
+        "timestamp": "2022-06-22T23:59:55Z",
+        "recommendedActions": {
+          "actionCode": "REJECT",
+          "presentCreditCard": true
+        },
+        "externalScore": "300"
+      }
+    }
+    ```
+
+    ## Limitations
+    The current version of this service requires a payment method CARD to be provided in input. 
+
+    ## API considerations
+
+    ### application/vnd.amadeus+json overall structure
+    Each request/response body is enclosed in a JSON envelope. The set of root level keys of that envelope is limited and support the API consumer pre-interactions. The main root level key is _data_ in input or in successful responses, and _errors_ for failing responses.
+
+    Here is an example of a successful response body:
+
+        {
+            "warnings": [
+                ...
+            ],
+            "data": {
+                ...
+            },
+            "dictionaries": {
+                ...
+            },
+            "included": [
+                ...
+            ],
+            "meta": {
+                ...
+            }
+        }
+
+    And here is an example of a successful collection response body:
+
+        {
+            "warnings": [
+                ...
+            ],
+            "data": [
+                ...
+            ],
+            "dictionaries": {
+                ...
+            },
+            "included": [
+                ...
+            ],
+            "meta": {
+                ...
+            },
+        }
+
+    Please note that request bodies are not expected to contain warnings or errors.
+
+    Here would be an example of a error response body:
+
+        {
+            "warnings": [
+                ...
+            ],
+            "errors": [
+                ...
+            ],
+            "meta": {
+                ...
+            }
+        }
+
+    Warnings are non-blocking issues encountered during processing. Errors are functionally blocking issues preventing a successful processing.
+
+
+    ### Semantic HTTP statuses
+
+    In this API, HTTP statuses are semantically applied.
+
+    Here are the main successful ones to consider (non-exhaustive list):
+    - **200 OK.** Processing of the operation is successful.
+    - **201 Created - FREQUENT business functional success.** Request was processed and resource instance was properly created.
+    - **202 Accepted - FREQUENT business functional success.** Request was received but processing of the operation is still ongoing (e.g. asynchronous processing).
+
+    And here are the main error categories returned (non-exhaustive list):
+    - **409 Conflict.** Conflicting operation, for instance due to concurrent long action or locked resource.
+    - **422 Unprocessable Entity - FREQUENT business functional failure.** Unprocessable request, mostly due to business context. 
+    - **424 Failed Dependency - FREQUENT business functional failure.** Business functional rejection from an external party downstream.
+    - **502 Bad Gateway.** Communication error in an external party downstream.
+    - **504 Gateway Timeout.** External party timeout error.  
+  contact:
+    name: Payment Open Platform
+    url: https://outpayce.com
+    email: payment.support@amadeus.com
+host: your-host-name
+basePath: /outpayce/v1
+schemes:
+  - https
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+tags:
+  - name: Fraud-Screening
+    description: |
+      **FRAUD SCREENING FOR PAYMENT OPERATION**
+paths:
+  /fraud-screening/{id}:
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+    put:
+      summary: Perform fraud screening operation
+      operationId: put-fraud-screening-id
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/FraudScreeningResponse'
+        '424':
+          $ref: '#/responses/error-response-424'
+        '502':
+          $ref: '#/responses/error-response-502'
+      description: |-
+        This endpoint allows to perform fraud screening operation. It returns the recommended actions to be performed by the merchant. 
+
+        There are 2 possible actions:
+          - ACCEPT
+          - REJECT
+          
+        In case of ACCEPT the merchant should go on with the payment process. 
+        In case of REJECT the merchant should not go on with the payment process
+
+        ## Limitations
+        The current version of this service requires a payment method CARD to be provided in input. 
+
+        ### Examples
+
+        #### Fraud screening request
+        ```
+        PUT https://your-host-name/outpayce/v1/fraud-screening/{id} HTTP/1.1
+        Content-Type: application/vnd.amadeus+json
+
+        {
+          "data": {
+            "id": "fraudscreeningId",
+            "paymentMerchantReference": "6X-ghyt-uijkh",
+            "amount": {
+              "value": "123.45",
+              "currencyCode": "EUR"
+            },
+            "method": "CARD",
+            "card": {
+              "vendorCode": "VI",
+              "cardNumber": "4000000000000001",
+              "expiryDate": "2024-12",
+              "holderName": "string",
+              "holder": {
+                "language": "string",
+                "email": "string",
+                "billingAddress": {
+                  "countryCode": "FR",
+                  "cityName": "string",
+                  "postalCode": "string",
+                  "lines": [
+                    "1863 Main Street"
+                  ],
+                  "stateCode": "CA"
+                },
+                "contacts": [
+                  {
+                    "phone": {
+                      "text": "+33 678903746"
+                    }
+                  }
+                ],
+                "identityDocument": {
+                    "documentType": "PASSPORT",
+                    "number": "12345678C",
+                    "issuanceCountry": "US"
+                }              
+              }
+            },
+            "purposeOfOperation": {
+              "sales": [
+                {
+                  "reference": "RECLOC",
+                  "referenceType": "PNR",
+                  "salesItems": [
+                    {
+                      "discounts": [
+                       {
+                          "code":"BLACKFRIDAY",
+                          "amount":"100.00",
+                          "currencyCode":"EUR"
+                       }
+                      ],
+                      "category": "FLIGHT",
+                      "flightSalesDetails": {
+                        "issuingCarrierCode": "6X",
+                        "travelAgencyCode": "ABC123",
+                        "travelAgencyName": "The Best Travel Agency",
+                        "passengerRoute": [
+                          "ORD",
+                          "MIA",
+                          "ORD"
+                        ],
+                        "flightLegs": [
+                          {
+                            "flightNumber": "6X12456A",
+                            "localDepartureTime": "2023-06-30T11:40:00Z",
+                            "departureTime": "2023-06-30T11:40:00Z",
+                            "departureAirportCode": "DEL",
+                            "localArrivalTime": "2023-06-30T13:40:00Z",
+                            "arrivalTime": "2023-06-30T13:40:00Z",
+                            "arrivalAirportCode": "YYZ",
+                            "carrierCode": "6X",
+                            "serviceClass": "Y"
+                          }
+                        ],
+                        "passenger": {
+                          "name": {
+                            "firstName": "MARIE",
+                            "lastName": "JACOB"
+                          },
+                          "flightPassengerType": "ADULT",
+                          "dateOfBirth": "1985-11-15",
+                          "loyaltyMemberships": [
+                            {
+                              "membershipId": "1234567890",
+                              "enrollment": {
+                                "date": "2020-05-20"
+                              },
+                              "activeTier": {
+                                "level": "GOLD"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "pointOfInteraction": {
+              "reference": "NCE6X08AA",
+              "referenceType": "officeId",
+              "operatingEnvironment": {
+                "holderInteractionMode": "ECOMMERCE"
+              },
+              "location": {
+                "address": {
+                  "countryCode": "GB"
+                }
+              }
+            },
+            "timestamp": "2023-05-22T23:59:55Z",
+            "operationContext": {
+              "links": [
+                {
+                  "href": "defaultCallbackURL",
+                  "rel": "default-callback"
+                },
+                {
+                  "href": "ErrorCallbackURL",
+                  "rel": "ErrorCallbackURL"
+                }
+              ],
+              "device": {
+                "network": {
+                  "ipAddress": "193.62.157.66"
+                },
+                "activeWebBrowser": {
+                  "userAgentHeader": "string",
+                  "acceptHeader": "string"
+                },
+                "deviceFingerprint": {
+                  "value": "qqp4ms1599563525800"
+                }
+              },
+              "threeDomainSecure": {
+                "eci": "string",
+                "cavv": "string",
+                "xid": "string",
+                "version": "string"
+              }
+            }
+          }
+        }
+        ```
+        #### Fraud screening response (ACCEPT)
+        ```
+        HTTP 201 Created
+        Content-Type: application/vnd.amadeus+json
+
+        {
+          "data": {
+            "reference": "string",
+            "paymentMerchantReference": "6X-985476t7f",
+            "timestamp": "2024-08-09T23:59:55Z",
+            "recommendedActions": {
+              "actionCode": "ACCEPT",
+              "presentCreditCard": false
+            },
+            "externalScore": "500"
+          }
+        }
+        ```
+        #### Fraud screening response (REJECT)
+        ```
+        HTTP 201 Created
+        Content-Type: application/vnd.amadeus+json
+
+        {
+          "data": {
+            "reference": "string",
+            "paymentMerchantReference": "6X-985476t7f",
+            "timestamp": "2022-06-22T23:59:55Z",
+            "recommendedActions": {
+              "actionCode": "REJECT",
+              "presentCreditCard": true
+            },
+            "externalScore": "300"
+          }
+        }
+        ```
+        #### Fraud screening response (FUNCTIONAL ERROR)
+        ```
+        HTTP 424 Failed Dependency
+        Content-Type: application/vnd.amadeus+json
+
+        {
+          "errors": [
+            {
+              "status": 424,
+              "code": "2694",
+              "title": "MANDATORY FIELDS MISSING OR INVALID"
+            }
+          ]
+        }
+        ```
+        #### Fraud screening response (TIMEOUT)
+        ```
+        HTTP 502 Bad Gateway error
+        Content-Type: application/vnd.amadeus+json
+
+        {
+          "errors": [
+            {
+              "status": 502,
+              "code": "5038",
+              "title": "TIMEOUT ERROR UNKNOWN"
+            }
+          ]
+        }
+        ```
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/FraudScreeningPayload'
+      tags:
+        - Fraud-Screening
+definitions:
+  Operation:
+    title: Operation
+    type: object
+    description: 'An *Operation* is either a payment operation implying or not a direct move of funds between a payer and a payee, or an operation related to a payment instrument (an instrument order or an instrument validation). An *Operation* is therefore an abstract resource that may be one of the following: *Authorization*, *Reversal*, *Capture*, *Refund*, *Instrument Order* and *Instrument Verification*.'
+    properties:
+      id:
+        type: string
+        description: |-
+          Amadeus Operation identifier.
+          This identifier is generated by Amadeus Payment Platform and uniquely represents this operation.
+      parentOperationId:
+        type: string
+        description: Identifier of a previous operation belonging to the same payment.
+      externalId:
+        type: string
+        description: Identifier of the operation generated by the service host.
+      method:
+        type: string
+        description: It drives information requested at authorization time. If CARD, then card information is provided if the operation is payment related.
+      purposeOfOperation:
+        $ref: '#/definitions/OperationPurposeOfOperation'
+      pointOfInteraction:
+        $ref: '#/definitions/OperationPointOfInteraction'
+      status:
+        type: string
+        description: Operation status.
+      timestamp:
+        type: string
+        description: Datetime of the operation.
+        format: date-time
+      operationContext:
+        $ref: '#/definitions/OperationOperationContext'
+  Amount:
+    title: Operation Amount
+    description: Operation amount
+    type: object
+    properties:
+      value:
+        type: string
+        description: The value of the amount.
+      currencyCode:
+        type: string
+        description: Indicate the currency of the provided amount (following [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)).
+        minLength: 3
+        maxLength: 3
+  Card:
+    title: Card
+    type: object
+    description: The payment card is a particular payment instrument.
+    properties:
+      vendorCode:
+        type: string
+        description: |
+          Upper case key representing the brand of the payment card chosen by the payer to process that payment transaction out of that non-exhaustive list:
+          - "VI" for Visa® (usually card starting with 4xxx),
+          - "CA" for Mastercard® (usually card starting with 5xxx, 6xxx or 2xxx),
+          - "AX" for American Express® (usually card starting with 34xxx or 37xxx),
+          - "DC" or "DS" for Diners Club®/Discover® (usually card starting with 64xxx or 65xxx),
+          - "JC" for JCB® (Japan Credit Bureau) (usually card starting with 35xxx),
+          - "UP" for UnionPay® (usually card starting with 62xxx),
+          - "TP" for UATP® (usually card starting with 1xxx)...
+          Prerequisite is of course that this brand is already contractually made available on behalf of the payee. For a more complete list of card brands (Aura®, CB®, elo®, Hipercard®, Maestro®, mada®...), please liaise with your Business Contact.
+        minLength: 2
+        maxLength: 2
+      holderName:
+        type: string
+        description: Card holder fullname registered against that payment card.
+      expiryDate:
+        type: string
+        description: Card expiry date, when present, displayed on the front of the payment card. Format expected is *YYYY-MM*.
+        minLength: 7
+        maxLength: 7
+        pattern: 20[0-9]{2}-(0[1-9]|10|11|12)
+      cvv:
+        type: string
+        description: Card Verification Value, also known as [card security code](https://en.wikipedia.org/wiki/Card_security_code), displayed (usually) on the back of the payment card. Handling of this very sensitive information must comply with [PCI-DSS](https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard).
+        minLength: 3
+        maxLength: 4
+      tokenizedCardNumber:
+        type: string
+        description: Token representing the payment card of the payer, compliant with [PCI-DSS](https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard) scope reduction tokenization principles. This information being sensitive, as for the cardNumber field itseld, please do not expect this information to be returned by default.
+      maskedCardNumber:
+        type: string
+        description: Masked payment card number, following recommendations of [PCI-DSS](https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard). This information will usually be returned for informational purposes, for instance it can be displayed or printed in some payment receipt.
+      cardNumber:
+        type: string
+        description: Payment card number, also known as PAN, or [primary account number](https://en.wikipedia.org/wiki/Payment_card_number), displayed (usually) on the front of the payment card. Handling of this very sensitive information must comply with [PCI-DSS](https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard). This information will usually not be returned as is, but masked.
+      paymentSystem:
+        type: string
+        description: |
+          NOT FOR METHOD CARD - Upper case key representing the supported payment system chosen by the payer from a predetermined list:
+          - \"[ALIPAY](https://intl.alipay.com)\",
+          - \"[CIMBCLICKS](https://www.cimbclicks.com.my)\",
+          - \"[EPS](https://www.eps-ueberweisung.at)\",
+          - \"[GIROPAY](https://www.giropay.de)\",
+          - \"[IDEAL](https://www.ideal.nl)\",
+          - \"[KLARNA](https://www.klarna.com)\",
+          - \"[KNET](https://www.knetpay.com.kw)\",
+          - \"[MAYBANK2U](https://www.maybank2u.com.my)\",
+          - \"[PAYPAL](https://www.paypal.com)\",
+          - \"[POLI](https://www.polipayments.com)\",
+          - \"[QIWI](https://qiwi.com)\",
+          - \"[SAFETYPAY](https://www.safetypay.com)\",
+          - \"[SEPA](https://ec.europa.eu/info/business-economy-euro/banking-and-finance/consumer-finance-and-payments/payment-services/single-euro-payments-area-sepa_en)\",
+          - \"[SOFORT](https://www.sofort.de)\",
+          - \"[UNIONPAY](https://www.unionpayintl.com)\".
+          Prerequisite is that this payment method is already contractually made available on behalf of the payee. For a more complete list of payment systems, please liaise with your Business Contact.
+      holder:
+        $ref: '#/definitions/Holder'
+      tokenizationType:
+        type: string
+        description: Standard used for tokenization. This field describes the type of tokenization under which the received token is being considered. Default value would be considered as PRIVATE_TOKEN
+        enum:
+          - PRIVATE_TOKEN
+          - EMVCO
+          - ALTID
+          - APPLEPAY
+          - GOOGLEPAY
+      tokenProvider:
+        type: string
+        description: |
+          Upper case key representing the issuer or provider of the instrument token from a predetermined list:
+            - \\\"[1A](https://www.outpayce.com)\\\" for Outpayce (formerly Amadeus) tokens,
+            - \\\"[ACI](https://www.accertify.com)\\\" for Accertify tokens,
+            - \\\"[FREEDOMPAY](https://corporate.freedompay.com)\\\" for FreedomPay tokens,
+            - \\\"[PAYU](https://payu.in)\\\" for PayU tokens,
+            - ...
+          For a more complete list of supported token issuers or providers, please liaise with your Business Contact.
+      wallet:
+        $ref: '#/definitions/payment_Wallet.v1'
+  Holder:
+    title: Payment Instrument Holder
+    type: object
+    description: Describe the holder of the payment instrument.
+    properties:
+      language:
+        type: string
+        description: Indicate the payment-instrument holder's language, lower case alpha-2 code is expected (following [ISO 639](https://en.wikipedia.org/wiki/ISO_639), eg. "en" for English).
+      email:
+        type: string
+        description: Indicate the payment-instrument holder's email address ([RFC 5322](https://tools.ietf.org/html/rfc5322)), please note that length beyond 70 characters and internationalization are not yet supported ([RFC 6530](https://tools.ietf.org/html/rfc6530)).
+      billingAddress:
+        $ref: '#/definitions/OperationAddress'
+      contacts:
+        title: Contact
+        description: A contact refers to the information that can be used to reach a person, a company or an organization.
+        type: array
+        items:
+          type: object
+          x-tags:
+            - contact
+            - phone
+            - email
+            - address
+            - message
+            - PII
+          title: Contact
+          description: A contact refers to the information that can be used to reach a person, a company or an organization.
+          properties:
+            phone:
+              type: object
+              x-tags:
+                - phone
+                - contact
+                - address
+                - PII
+              title: Phone
+              description: Phone information.
+              properties:
+                text:
+                  type: string
+                  description: String containing the full phone number - applicable only when a structured phone (i.e. countryCallingCode + number) is not provided
+                  example: (+33)6123123
+                  x-risk-personal-data-field: PHONE_NUMBER
+      name:
+        $ref: '#/definitions/Operation_Name.v1'
+      identityDocument:
+        $ref: '#/definitions/OperationIdentityDocument'
+  OperationPurposeOfOperation:
+    title: Operation Purpose of Payment Operation
+    type: object
+    description: Purpose of the payment operation (sales, donation,...)
+    properties:
+      sales:
+        type: array
+        items:
+          $ref: '#/definitions/OperationSalesSummary'
+      validUntil:
+        type: string
+        format: date-time
+        description: Date and time until which the object of the payment (sales) is valid. After this limit, the sales content is released and the sale process has to be started over.
+  OperationSalesSummary:
+    title: Operation Sales
+    description: Sales summary information, should itemized information be also necessary, then this level of detail will be transported by composition of SalesSummaryItem instances.
+    type: object
+    properties:
+      reference:
+        type: string
+        description: Reference identifying the sales.
+      referenceType:
+        type: string
+        description: Type of reference identifying the sales.
+      referenceOwner:
+        type: string
+        description: Owner of the reference type.
+      salesItems:
+        type: array
+        description: Sales items information.
+        items:
+          $ref: '#/definitions/OperationSalesSummaryItem'
+  OperationSalesSummaryItem:
+    title: Operation Sales Item
+    type: object
+    description: Sales summary itemized information, usually as a collection of children of a SalesSummary instance.
+    properties:
+      category:
+        type: string
+        description: Category best qualifying the sales item.
+        enum:
+          - LODGING
+          - FLIGHT
+          - OTHER
+      flightSalesDetails:
+        $ref: '#/definitions/OperationSalesItemFlightDetails'
+      discounts:
+        type: array
+        description: Discounts associated to the sales item.
+        items:
+          $ref: '#/definitions/OperationSalesSummaryItemDiscount'
+  OperationSalesSummaryItemDiscount:
+    type: object
+    x-ama-mask:
+      scdm-ref: ../reference/common/models/SharedCommonDataModels/SalesSummaryItem/SalesSummaryItem_Discount.v2.yaml
+    title: Sales Summary Item Discount
+    description: Discount code is a parameter that allow to target specific price or apply a specific discount (percent or flat amount) to a public or private price depending of the nature of the passenger.
+    properties:
+      amount:
+        type: string
+        description: Monetary amount, formatted as it should be presented to an end user.
+      code:
+        type: string
+      currencyCode:
+        type: string
+        description: Indicate the currency of the provided amount (following [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)).
+  OperationSalesItemFlightDetails:
+    title: Operation Sales Item Flight Details
+    type: object
+    description: Flight detailed item description as a sales summary item.
+    properties:
+      flightLegs:
+        type: array
+        items:
+          $ref: '#/definitions/OperationSalesItemFlightLegDetails'
+      issuingCarrierCode:
+        type: string
+        description: IATA code of the validating carrier.
+      travelAgencyCode:
+        type: string
+        description: Code identifying the travel agency resposible for this sales..
+      travelAgencyName:
+        type: string
+        description: Name of the travel agency resposible for this sales.
+      issuedDate:
+        type: string
+        format: date
+        description: Date of issuance of the ticket.
+      reservationSystem:
+        type: string
+        description: Reservation System.
+      passenger:
+        $ref: '#/definitions/OperationStakeholder'
+      ticketNumber:
+        type: string
+        description: Ticket number of the flight.
+      reservationNumber:
+        type: string
+        description: Reservation number of the flight, usually assigned at booking time.
+      passengerRoute:
+        type: array
+        description: List of IATA airport codes participating as segment touchpoints chronologically sorted.
+        items:
+          type: string
+  OperationSalesItemFlightLegDetails:
+    title: Operation Sales Item Flight Leg Details
+    type: object
+    description: Flight itinerary details associated to a given passenger as sales summary flight details at flight segment level.
+    properties:
+      fareBasisCode:
+        type: string
+        description: Airline fare basis code identifying a fare type.
+      localArrivalTime:
+        type: string
+        format: date-time
+        description: Local date and time of the scheduled arrival, compliant with ISO8601.
+      arrivalTime:
+        type: string
+        format: date-time
+        description: UTC date and time of the scheduled arrival, compliant with ISO8601.
+      arrivalAirportCode:
+        type: string
+        description: IATA 3-letter code representing the airport of arrival of that flight leg.
+      localDepartureTime:
+        type: string
+        format: date-time
+        description: Local date and time of the scheduled departure, compliant with ISO8601.
+      departureTime:
+        type: string
+        format: date-time
+        description: UTC date and time of the scheduled departure, compliant with ISO8601.
+      departureAirportCode:
+        type: string
+        description: IATA 3-letter code representing the airport of departure of that flight leg.
+      carrierCode:
+        type: string
+        description: IATA code of the carrier in charge of that flight segment.
+      travelDate:
+        type: string
+        format: date
+        description: Day when travel over that segment begins.
+      couponNumber:
+        type: string
+        description: Coupon number.
+      flightNumber:
+        type: string
+        description: Flight number associated to the carrier in charge of that flight segment.
+      serviceClass:
+        type: string
+        description: Reference identifying the class of travel and included services (with their conditions and benefits) sold.
+  OperationPaymentTerminal:
+    title: Operation Payment Terminal
+    type: object
+    properties:
+      deviceReference:
+        type: string
+        description: Reference identifying the payment terminal.
+    description: Payment terminal (also known as POS Terminal, PDQ terminal, card terminal), device interfacing with payment cards to provide a set of different financial services (for instance make electronic funds transfers).
+  OperationOperatingEnvironment:
+    title: Operation Operating Environment
+    type: object
+    properties:
+      deliveryTypesOfGoods:
+        type: array
+        enum:
+          - DIGITAL_GOODS
+          - PHYSICAL_GOODS
+          - SERVICES
+        description: Types of goods delivered through this Point of Business.
+        items:
+          type: string
+      cardPresence:
+        type: string
+        enum:
+          - CARD_NOT_PRESENT
+          - CARD_PRESENT
+          - NO_CONTACT
+        description: Qualification of the Point of Business as *Card Present* or *Card Not Present* environment.
+      holderInteractionMode:
+        type: string
+        enum:
+          - ECOMMERCE
+          - FACE_TO_FACE
+          - MAIL_ORDER
+          - HOLDER_NOT_PRESENT
+          - PHONE_ORDER
+          - RECURRING
+          - ON_FILE
+        description: Primary mode of interaction with the payment instrument holder that this Point of Business provides.
+      hasOnlineCapacity:
+        type: boolean
+        description: Indicator of the capacity of the Point Of Business to use the network connectivity to synchronously communicate with the processor.
+      hasOfflineCapacity:
+        type: boolean
+        description: Indicator of the capacity of the Point Of Business to operate autonomously without a direct connectivity with the processor.
+      vicinity:
+        type: string
+        enum:
+          - ON_PREMISES
+          - OFF_PREMISES
+          - NO_TERMINAL
+        description: Positioning information with regards to potential premises of the Point of Business.
+      supervisedBy:
+        type: string
+        enum:
+          - FINANCIAL
+          - HOLDER
+          - MERCHANT
+        description: Information about which category of stakeholder is accountable, supervising the Point of Business.
+      isAttended:
+        type: boolean
+        description: Indicator of whether the Point of Business is or not attended.
+    description: Operating Environment of a given Point of Interaction.
+  OperationLocation:
+    title: Operation Location
+    type: object
+    description: Description of a particular point or place in physical space
+    properties:
+      address:
+        $ref: '#/definitions/OperationAddress'
+      subtype:
+        type: string
+        description: Location sub-type (e.g. market, division, airport, port, rail-station, restaurant, atm...)
+      name:
+        type: string
+        description: Label associated to the location (e.g. Eiffel Tower, Madison Square)
+        example: Eiffel Tower
+  OperationAddress:
+    title: Operation Address
+    type: object
+    description: Address information
+    properties:
+      countryCode:
+        type: string
+        description: ISO 3166-1 country code
+        pattern: '[a-zA-Z]{2}'
+      lines:
+        type: array
+        description: Line 1 = Street address, Line 2 = Apartment, suite, unit, building, floor, etc
+        items:
+          type: string
+      postalCode:
+        type: string
+        description: 'Example: 74130'
+      stateCode:
+        type: string
+        description: State code (two character standard IATA state code)
+        pattern: '[a-zA-Z0-9]{1,2}'
+      cityName:
+        type: string
+        description: Name of the city
+      state:
+        type: string
+        description: State, province or country name
+        example: Florida
+  OperationPointOfInteraction:
+    title: Operation Point Of Interaction
+    type: object
+    description: Characteristics and environmental information of a conceptually and individually identifiable point of business interaction leading to some operations.
+    properties:
+      participatingPaymentTerminal:
+        $ref: '#/definitions/OperationPaymentTerminal'
+      operatingEnvironment:
+        $ref: '#/definitions/OperationOperatingEnvironment'
+      location:
+        $ref: '#/definitions/OperationLocation'
+      referenceOwner:
+        type: string
+        description: Owner/Issuer of the type of reference used to reference this point of business interaction.
+      referenceType:
+        type: string
+        description: Type of reference used to reference this point of business interaction.
+      reference:
+        type: string
+        description: Reference of the point of business interaction.
+  OperationOperationContext:
+    title: Operation Context
+    type: object
+    properties:
+      callbackUniqueToken:
+        type: string
+        description: Token of information allowing the API consumer to uniquely identify the context of that payment record, for maintenance or reference purpose. Some API consumers would put some session token for instance.
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/OperationLink'
+      threeDomainSecure:
+        $ref: '#/definitions/OperationThreeDomainSecure'
+      interactionCondition:
+        type: string
+        description: |
+          Main condition qualifying the interaction mechanism of the transaction.
+          Here are the different interactions supported at the moment:
+          - \"ACCOUNT_VERIFICATION\",
+          - \"COMMIT_PREAUTHOR\" (commitment of a preauthorization),
+          - \"ECOMMERCE\",
+          - \"FACE_TO_FACE_PIN\",
+          - \"FACE_TO_FACE_MANUAL\",
+          - \"IN_FLIGHT\",
+          - \"INQUIRY\",
+          - \"OTHER_NOT_PRESENT\" (other Card Not Present interaction),
+          - \"ON_FILE\",
+          - \"PAPER_ORDER\",
+          - \"PHONE_ORDER\",
+          - \"PREAUTHORIZATION\" (preauthorizing still allows amount to vary),
+          - \"RECURRING\",
+          - \"MERCHANT_SUSPICIOUS\",
+          - \"TIME_BASED\".
+      transactionIntent:
+        type: string
+        description: |
+          Provide the original intent of the (future) transaction(s). 
+          It is strongly recommended to communicate that intent of use for Merchant-initiated transactions, and even a mandate under some local regulations. Here are the different intents supported at the moment:
+          - \"NO_PAYMENT\" (like account verification or inquiries),
+          - \"PRE_PAYMENT_ONLY\" (implicitly meaning there is some remainder of payment to cover via some completion later on, e.g. a 10% downpayment),
+          - \"ONE_OFF\" (default),
+          - \"DEFERRED\" (due to some business rationales),
+          - \"NO_SHOW_PENALTY\",
+          - \"CANCELLATION_PENALTY\",
+          - \"LATE_CHANGE_PENALTY\",
+          - \"DEPOSIT_RETAINER_PENALTY\",
+          - \"ANY_PENALTY\",
+          - \"COMPLETION\" (of a pre-payment done earlier),
+          - \"EXTENDED_PERIOD_DELAY\" (due to some specific business cases),
+          - \"TECHNICAL_RESUBMISSION\",
+          - \"INSTALLMENTS\" (with terms and plans agreed in advance),
+          - \"SUBSCRIPTION\" (of fixed amount through regular schedule),
+          - \"RECURRING\" (of variable amounts through regular schedule, e.g. utilities payment),
+          - \"REUSABLE\" (at any time, of any amount, within payment instrument holder scope of consent of course).
+      transactionInitiator:
+        type: string
+        default: HOLDER
+        enum:
+          - MERCHANT
+          - HOLDER
+        description: Indicate whether the transaction is a MERCHANT initiated transaction (_MIT_) or a payment instrument HOLDER initiated transaction (aka _CIT_ with _C_ standing for cardholder or consumer).
+      device:
+        $ref: '#/definitions/OperationDevice'
+  OperationThreeDomainSecure:
+    title: Operation Three Domain Secure
+    type: object
+    properties:
+      collectionIndicator:
+        type: string
+        description: UCAF collection indicator value.
+      cavvAlgorithm:
+        type: string
+        description: CAVV Algorithm, required for some schemes.
+      aav:
+        type: string
+        description: UCAF Account holder Authentication Value.
+      aevv:
+        type: string
+        description: Base64-encoded American Express Verification Value.
+      cavv:
+        type: string
+        description: Base64-encoded Cardholder Authentication Verification Value.
+      eci:
+        type: string
+        description: Computed e-commerce indicator.
+      transStatus:
+        type: string
+        description: 3-D Secure 2.x (or later) Final Authentication Result.
+      paresStatus:
+        type: string
+        description: 3-D Secure 1.x Payer Authentication RESponse 1-character status.
+      veresStatus:
+        type: string
+        description: 3-D Secure 1.x Verify Enrollment RESponse 1-character status.
+      xid:
+        type: string
+        description: Base64-encoded 3-D Secure transaction identifier.
+      dsTransactionId:
+        type: string
+        description: 3-D Secure 2.x (or later) Directory Server Transaction Identifier.
+        format: uuid
+      version:
+        type: string
+        description: 3-D Secure protocol version.
+    description: Operation 3-Domain Secure information.
+  OperationDevice:
+    title: Operation_HostingDevice
+    type: object
+    description: A device is a constructed (physical or virtual) tool for a particular purpose. When electronic, it could be considered the computer itself or a component of a computer system.
+    properties:
+      id:
+        type: string
+        description: Unique identifier of the device.
+      activeWebBrowser:
+        $ref: '#/definitions/Operation_WebBrowser.v1'
+      network:
+        $ref: '#/definitions/Operation_Network.v1'
+      deviceFingerprint:
+        $ref: '#/definitions/Operation_DeviceFingerprint.v1'
+  OperationLink:
+    title: Operation Link
+    type: object
+    properties:
+      rel:
+        type: string
+        description: |
+          Relation of the link (eg. parent, resumption, FAQ). In addition to [IANA standard relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml), payment area bears domain specific ones:
+          - \"default-callback\" to indicate the landing page by default,
+          - \"webhook\" to indicate a potential webhook in case the 3rd party offers such mechanism, by default,
+          - \"resumption\" to indicate where the API consumer is expected to resume the flow after redirection,
+          - \"fail-callback\" to indicate the landing page when the user cancels the payment or any error occurs,
+          - \"keep-alive\" to indicate the URL to keep the payment session alive and not to have an inactivity timeout.
+      href:
+        type: string
+        description: Absolute or relative URL.
+        format: uri
+  OperationIdentityDocument:
+    title: Operation Identity Document
+    type: object
+    description: The information that are found on an ID document.
+    x-ama-mask:
+      local-ref: ./Resources/payment/MerchantRisk/MerchantOperation_IdentityDocument.v1.yaml
+    properties:
+      documentType:
+        type: string
+        description: The nature/type of the document.
+        enum:
+          - PASSPORT
+        example: PASSPORT
+      number:
+        type: string
+        description: The document number (shown on the document) . E.g. QFU514563221J
+      issuanceCountry:
+        type: string
+        description: ISO code (2-letters) of the country that issued the document.
+        pattern: '[a-zA-Z]{2}'
+  OperationMembership:
+    title: Operation Membership
+    type: object
+    description: |
+      A membership represents a contract between an entity (individual, charity) and a loyalty program, which allows the entity to benefit from this program. <br> <br> If subType is <br>- <b> INDIVIDUAL</b> then <i>individual</i> attribute must be filled<br>- <b>CHARITY</b> then <i>charity</i> attribute must be filled
+    x-ama-mask:
+      local-ref: ./Resources/payment/MerchantRisk/MerchantOperation_Membership.v1.yaml
+    properties:
+      activeTier:
+        type: object
+        description: 'Description of a Tier in the context of the loyalty program '
+        properties:
+          level:
+            type: string
+            description: 'Tier scale values within the Loyalty Program hierarchy. Ex: BLUE, SILVER, GOLD, PLATINUM.'
+      enrollment:
+        $ref: '#/definitions/OperationMembershipEnrollment'
+      membershipId:
+        type: string
+        description: Identifier of the membership within the program. This is what is commonly called the 'Frequent Flyer Number' for airlines.
+        example: '000411881'
+  OperationMembershipEnrollment:
+    title: Operation Membership Enrollment
+    type: object
+    x-ama-mask:
+      local-ref: ./Resources/payment/MerchantRisk/MerchantOperation_MembershipEnrollment.v1.yaml
+    description: Represents the group of enrollment information such as source and date of enrollment.
+    properties:
+      date:
+        type: string
+        description: Date the membership account was created formatted in yyyy-MM-dd.
+        format: date
+        example: '2020-07-06'
+  OperationStakeholder:
+    title: Stakeholder
+    type: object
+    x-ama-mask:
+      scdm-ref: https://rndwww.nce.amadeus.net/git/projects/ADT-SL/repos/data-model-dictionary/browse/reference/common/models/SharedCommonDataModels/Stakeholder/Stakeholder.v2.yaml
+    description: A stakeholder is an individual with a role. Fields gender, nationality, placeOfBirth, countryOfResidence are only populated for passengerDelivery resources.
+    allOf:
+      - type: object
+        properties:
+          name:
+            $ref: '#/definitions/Operation_Name.v1'
+          roles:
+            type: array
+            description: Role of the stakeholder
+            example: TRAVELER
+            items:
+              type: string
+              enum:
+                - TRAVELER
+                - BUYER
+                - PAYER
+                - PERSON_TO_CONTACT
+          dateOfBirth:
+            type: string
+            format: date
+            example: '1978-10-05'
+          loyaltyMemberships:
+            type: array
+            description: Loyalty memberships associated to the stakeholder.
+            items:
+              $ref: '#/definitions/OperationMembership'
+          flightPassengerType:
+            type: string
+            description: Specifies flight passenger type
+            enum:
+              - ADULT
+              - CHILD
+              - INFANT
+              - INFANT_WITH_SEAT
+            example: ADULT
+  ErrorResponse:
+    type: object
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+  Error:
+    type: object
+    title: Payment Error
+    description: The error definition when a payment transaction fails
+    x-ama-mask:
+      scdm-ref: https://rndwww.nce.amadeus.net/git/projects/ADT-SL/repos/data-model-dictionary/browse/reference/common/models/SharedCommonDataModels/Error/Error.v1.yaml
+    properties:
+      code:
+        type: integer
+        description: A machine-readable error code, that will enable the API Consumers code to handle this type of error
+      detail:
+        type: string
+        description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+      documentation:
+        type: string
+        description: A link to a web page or file with further documentation to help the API consumer resolve this error
+        format: url
+      errorTraces:
+        type: array
+        description: Optional error traces
+        items:
+          type: object
+          title: Error Trace
+          description: Detailed error providing more insight and control to the intended audience
+          properties:
+            code:
+              type: string
+              description: A machine-readable error code, that will enable the intended audience to handle this type of error
+            codeOwner:
+              type: string
+              description: Owner of the codification system
+            detail:
+              type: string
+              description: An easy-to-read explanation specific to this occurrence of the problem. It should give the intended audience an idea of what went wrong and how to recover from it.
+      source:
+        type: object
+        title: Error_Source
+        properties:
+          example:
+            type: string
+            description: A sample input to guide the user when resolving this issue
+          parameter:
+            type: string
+            description: The key of the URI path or query parameter that caused the error
+          pointer:
+            type: string
+            description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+      status:
+        type: integer
+        description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+      title:
+        type: string
+        description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+  Warnings:
+    title: Warnings
+    type: array
+    items:
+      $ref: '#/definitions/payment_Warning.v1'
+  FraudScreening:
+    title: Operation_FraudScreening.v1
+    allOf:
+      - $ref: '#/definitions/Operation'
+      - type: object
+        properties:
+          amount:
+            $ref: '#/definitions/Amount'
+          paymentMerchantReference:
+            type: string
+            description: "Operation merchant reference.\r\n\r\nIdentifier of the operation generated by the merchant."
+          card:
+            $ref: '#/definitions/Card'
+  FraudScreeningPayload:
+    title: FraudScreeningPayload
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/FraudScreening'
+  FraudScreeningResponse:
+    type: object
+    title: Operation Fraud Screening Response
+    description: Structure representing a fraud screening operation reply
+    properties:
+      reference:
+        type: string
+        description: Resource reference or unique identifier of partner
+      paymentMerchantReference:
+        type: string
+        description: Operation merchant reference (also identified as _MRF_ in other Amadeus payment applications)..
+      timestamp:
+        type: string
+        description: Transaction timestamp
+      recommendedActions:
+        type: object
+        properties:
+          actionCode:
+            enum:
+              - ACCEPT
+              - REJECT
+            description: Recommended action returned by the fraud partner as a result of the fraud screening operation
+          presentCreditCard:
+            type: boolean
+            description: 'Present credit card (PCC) indicator.'
+      externalScore:
+        type: string
+        description: Total fraud screening score provided by the fraud partner
+  Operation_Name.v1:
+    type: object
+    description: Description of the name of a physical person
+    x-ama-mask:
+      scdm-ref: https://rndwww.nce.amadeus.net/git/projects/ADT-SL/repos/data-model-dictionary/browse/reference/common/models/SharedCommonDataModels/Name/Name.v1.yaml
+    title: Name
+    x-tags:
+      - Name
+      - PII
+    properties:
+      firstName:
+        description: First name.
+        type: string
+      lastName:
+        description: Last name.
+        type: string
+  Operation_WebBrowser.v1:
+    title: Operation_WebBrowser.v1
+    type: object
+    description: Web browser information
+    properties:
+      userAgentHeader:
+        type: string
+        description: Conveys the User-Agent header information sent by the browser at query time (eg. "Mozilla/5.0 (iPad; U; CPU OS 3_2_1 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Mobile/7B405").
+      acceptHeader:
+        type: string
+        description: Conveys the Accept header information sent by the browser at query time (eg. "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng;q=0.8"). This would represent the media types acceptable for the response.
+      ietfLanguageTag:
+        type: string
+        description: Preferred language tag used by most of modern computing standards as defined in the IETF BCP-47 (eg. "en", "fr-CA", "pt-BR", "nan-Hant-TW",...).
+  Operation_Network.v1:
+    title: Operation_Network.v1
+    type: object
+    properties:
+      ipAddress:
+        type: string
+        description: Value of the IP (Internet Protocol) address, versions 4 or 6.
+    description: Information about the network
+  Operation_DeviceFingerprint.v1:
+    title: Operation Device Fingerprint
+    type: object
+    description: A Device Fingerprint (or machine fingerprint or DFP) contains a more or less discriminating long value resulting from a heuristic fingerprinting algorithm/method. Such method is based on available contextual information collected. Its finality is to support the identification of the device.
+    properties:
+      value:
+        type: string
+        description: Long string representing the DFP value.
+  payment_Wallet.v1:
+    title: Wallet
+    type: object
+    description: Wallet is a container of payment instrument. This object contains wallet related information as below.
+    properties:
+      walletType:
+        enum:
+          - APPLEPAY
+          - GOOGLEPAY
+        description: This field signifies the name of the wallet used to facilitate the respective wallet transaction.
+      provider:
+        enum:
+          - APPLE
+          - GOOGLE
+        description: This field represents the name of the provider of the wallet used to facilitate the transaction
+  payment_Warning.v1:
+    type: object
+    title: Payment Warning
+    description: Warning information when a payment transaction encounters a non-fatal issue
+    x-ama-mask:
+      scdm-ref: https://rndwww.nce.amadeus.net/git/projects/ADT-SL/repos/data-model-dictionary/browse/reference/common/models/SharedCommonDataModels/Warning/Warning.v1.yaml
+    properties:
+      code:
+        type: integer
+        description: A machine-readable error code from the Canned Messages table, that will enable the API Consumers code to handle this type of error
+      title:
+        type: string
+        description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+      detail:
+        type: string
+        description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+      documentation:
+        type: string
+        format: url
+        description: A link to a web page or file with further documentation to help the API consumer resolve this error
+      sources:
+        type: array
+        items:
+          type: object
+          description: The Warning Source Definition
+          title: Warning_Source
+          properties:
+            parameter:
+              type: string
+              description: The key of the URI path or query parameter that caused the error
+            pointer:
+              type: string
+              description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+            example:
+              type: string
+              description: A sample input to guide the user when resolving this issue
+    required:
+      - code
+      - title
+responses:
+  error-response-400:
+    description: |
+      **400 Bad Request error.** Problem reading or understanding request (Usually missing data or invalid requests). Please find below an exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      33460  |   | MISSING REQUIRED INPUT PARAM(S) - PLEASE ADJUST REQUEST
+      33459  |   | INVALID INPUT PARAM(S) - PLEASE ADJUST REQUEST
+      00477  |   | INVALID FORMAT
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      INVALID FORMAT:
+        errors:
+          - code: 477
+            title: INVALID FORMAT
+  error-response-403:
+    description: |
+      **403 Forbidden error.** Generic error linked to permission mismatch. Please find below a non-exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      01666  |   | NOT ALLOWED
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      NOT ALLOWED:
+        errors:
+          - code: 1666
+            title: NOT ALLOWED
+  error-response-409:
+    description: |
+      **409 Conflict error.** Generic error linked to conflicting operation. Please find below a non-exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      33474  |   | PAYMENT TRANSACTION CANCELLED EXTERNALLY.
+      25754  |   | REVERSAL ALREADY PERFORMED
+      33477  |   | PAYMENT TRANSACTION ALREADY CANCELLED OR REFUNDED
+      33478  |   | PAYMENT TRANSACTION ALREADY TOTALLY CANCELLED OR REFUNDED
+      33479  |   | PAYMENT TRANSACTION EXPIRED.
+      25888  |   | PARTIAL REVERSAL DISALLOWED
+      33869  |   | PAYMENT REVERSAL DENIAL DUE TO CAPTURE PROCESSED
+      39041  |   | DUPLICATE REQUEST ERROR
+      09659  |   | CC REVERSAL HAS BEEN LOCKED FOR THIS CARD BY ISSUEING BANK
+      33034  |   | OUT OF REFUND PERIOD
+      33562  |   | PAYMENT PARTIAL REFUND NOT ALLOWED
+      33548  |   | PAYMENT PARTIAL CAPTURE NOT ALLOWED
+       6617  |   | REFUND AMOUNT GREATER THAN SALE
+      42048  |   | UNABLE TO PROCESS REFUND - PARENT OPERATION ID REQUIRED 
+      30366  |   | TRANSACTION ABORTED
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      Payment was invalid:
+        errors:
+          - code: 33474
+            title: PAYMENT TRANSACTION CANCELLED EXTERNALLY.
+  error-response-422:
+    description: "**422 Unprocessable Entity error.** Generic error linked to unprocessable request. Please find below a non-exhaustive list of errors:\n\ncode   | - | title\n------:|:-:|:-\n00011  |   | \tUNABLE TO PROCESS\n01304  |   |  CREDIT CARD NOT ACCEPTED\n"
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      CREDIT CARD NOT ACCEPTED:
+        errors:
+          - code: 1304
+            title: CREDIT CARD NOT ACCEPTED
+  error-response-424:
+    description: |
+      **424 Failed Dependency error.** Generic error linked to 3rd party functional rejection. Please find below a non-exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      04751  |   | INVALID CARD
+      33480  |   | PAYMENT TRANSACTION DECLINED. SUSPECTED FRAUD
+      12678  |   | CC SECURITY ID DOES NOT MATCH
+      04223  |   | NAME MISMATCH
+      12550  |   | AUTHORISATION DENIED INSUFFICIENT FUNDS
+      34869  |   | CREDIT CARD DENIAL - INCORRECT PIN
+      34477  |   | REVERSAL NOT PERFORMED
+      33471  |   | PAYMENT ACTION DECLINED
+      40004  |   | UNABLE TO PROCESS REFUND - PROCESS MANUALLY
+      65222  |   | PAYMENT REQUIRES 3D SECURE
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      PAYMENT ACTION DECLINED:
+        errors:
+          - code: 33471
+            title: PAYMENT ACTION DECLINED
+  error-response-500:
+    description: |
+      **500 Internal Server Error error.** Generic Amadeus internal error. Please find below a non-exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      00974  |   | SYSTEM UNAVAILABLE
+      00414  |   | INTERNAL PROCESSING ERROR
+      02894  |   | ERROR MESSAGE NOT FOUND
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      ERROR MESSAGE NOT FOUND:
+        errors:
+          - code: 2894
+            title: ERROR MESSAGE NOT FOUND
+  error-response-502:
+    description: |
+      **502 Bad Gateway error.** Generic communication error downstream. Please find below a non-exhaustive list of errors:
+
+      code   | - | title
+      ------:|:-:|:-
+      33457  |   | COMMUNICATION ERROR - PLEASE TRY AGAIN LATER
+      5038   |   | TIMEOUT ERROR UNKNOWN
+      31787  |   | ISSUER NOT AVAILABLE
+      33503  |   | PAYMENT SERVICE PROVIDER SYSTEM ERROR
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      ISSUER NOT AVAILABLE:
+        errors:
+          - code: 31787
+            title: ISSUER NOT AVAILABLE
+  error-response:
+    description: |
+      **Standard error.Generic Error (Can be used if HTTP Status Code doesn't match with defined error Codes for now).
+      code   | - | title
+        ------:|:-:|:-
+        00492  |   | ERROR
+    schema:
+      $ref: '#/definitions/ErrorResponse'
