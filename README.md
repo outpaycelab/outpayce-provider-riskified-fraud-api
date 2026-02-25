@@ -1,6 +1,6 @@
 # Connect API Acceptance
 ## Non-Disclosure Agreement Reminder
-As Outpayce S.A.U. is part from Amadeus IT Group S.A. all the agreements signed between Amadeus IT Group S.A. and your company are still applicable to all the content available in this [repository](https://github.com/outpaycelab/outpayce-provider-mips-api)..
+As Outpayce S.A.U. is part from Amadeus IT Group S.A. all the agreements signed between Amadeus IT Group S.A. and your company are still applicable to all the content available in this [repository](https://https://github.com/outpaycelab/outpayce-provider-riskified-fraud-api).
 ## Introduction
 The Fraud Connect API is a modern REST API for any Fraud Screening Partner needing to connect to Outpayce Xchange Payment Platform. 
 In this repository, you will find:
