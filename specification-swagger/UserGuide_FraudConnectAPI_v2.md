@@ -161,10 +161,11 @@ The integration must be resilient to the addition of future fields and remain fu
 | purposeOfOperation.sales[].salesItems | O | Sales items information. | array |
 | purposeOfOperation.sales[].salesItems[] | O | Sales summary itemized information, usually as a collection of children of a SalesSummary instance. | object |
 | purposeOfOperation.sales[].salesItems[].category | O | Category best qualifying the sales item. | enum |
-| purposeOfOperation.sales[].salesItems[].discounts | O | Discounts associated to the sales item. | object |
-| purposeOfOperation.sales[].salesItems[].discounts.code | O | Discount code is a parameter that allow to target specific price or apply a specific discount (percent or flat amount) to a public or private price depending of the nature of the passenger. | string |
-| purposeOfOperation.sales[].salesItems[].discounts.amount | O | Monetary amount, formatted as it should be presented to an end user. | string |
-| purposeOfOperation.sales[].salesItems[].discounts.currencyCode | O | Indicate the currency of the provided amount (following ISO 4217). | string |
+| purposeOfOperation.sales[].salesItems[].discounts | O | Discounts associated to the sales item. | array |
+| purposeOfOperation.sales[].salesItems[].discounts[] | O |  | object |
+| purposeOfOperation.sales[].salesItems[].discounts[].code | O | Discount code is a parameter that allow to target specific price or apply a specific discount (percent or flat amount) to a public or private price depending of the nature of the passenger. | string |
+| purposeOfOperation.sales[].salesItems[].discounts[].amount | O | Monetary amount, formatted as it should be presented to an end user. | string |
+| purposeOfOperation.sales[].salesItems[].discounts[].currencyCode | O | Indicate the currency of the provided amount (following ISO 4217). | string |
 | purposeOfOperation.sales[].salesItems[].flightSalesDetails | O | Flight detailed item description as a sales summary item. | object |
 | purposeOfOperation.sales[].salesItems[].flightSalesDetails.flightLegs | O |  | array |
 | purposeOfOperation.sales[].salesItems[].flightSalesDetails.flightLegs[] | O | Flight itinerary details associated to a given passenger as sales summary flight details at flight segment level. | object |
@@ -305,11 +306,11 @@ The integration must be resilient to the addition of future fields and remain fu
                     "referenceType": "PNR",
                     "salesItems": [{
                             "category": "FLIGHT",
-                            "discounts": {
+                            "discounts": [{
                                 "code": "BLACKFRIDAY",
                                 "amount": "99.99",
                                 "currencyCode": "GBP"
-                            },
+                            }],
                             "flightSalesDetails": {
                                 "flightLegs": [{
                                         "arrivalAirportCode": "MUC",
