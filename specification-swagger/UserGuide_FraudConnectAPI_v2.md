@@ -200,6 +200,7 @@ The integration must be resilient to the addition of future fields and remain fu
 #### 1.1.2.2 Request Headers 
 
 | Object/field name | Applicability | Comments                                                      | Expected format |
+|-------------------|---------------|---------------------------------------------------------------|------------------|
 | Content-Type | M | Standard HTTP header that indicates the media type of the body content  | string |
 | x-api-key | M | API KEY key previously obtained through the provider system and stored at the FRDPARAM rule | string |
 | merchant-id | M | Upper case short key uniquely identifying the merchant | string |
